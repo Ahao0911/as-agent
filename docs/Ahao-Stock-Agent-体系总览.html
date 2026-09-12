@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ahao Stock Agent · 交易体系总览</title>
+<style>
+  :root {
+    --bg: #f5f6fa; --card: #ffffff; --border: #e0e4ea;
+    --text: #1a2233; --sub: #5a6577; --accent: #1e6fff; --green: #0a9d58; --red: #e03131;
+    --yellow: #f0a020; --purple: #7c3aed; --teal: #0d9488;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:"Segoe UI","Microsoft YaHei",sans-serif; padding:24px; }
+  .header { text-align:center; padding:28px 0 8px; }
+  .header h1 { font-size:28px; letter-spacing:1px; }
+  .header h1 span { color:var(--accent); }
+  .header p { color:var(--sub); margin-top:6px; font-size:13px; }
+  .updated { display:inline-block; margin-top:10px; background:#e8f0ff; color:var(--accent); padding:4px 14px; border-radius:20px; font-size:12px; }
+  .grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-top:24px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+  .card h2 { font-size:17px; display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .card .tag { font-size:11px; padding:2px 8px; border-radius:10px; background:#f0f2f5; color:var(--sub); font-weight:normal; }
+  .card .desc { font-size:12px; color:var(--sub); margin:4px 0 12px; }
+  .branch { margin-left:4px; border-left:2px solid var(--border); padding-left:14px; margin-top:8px; }
+  .node { position:relative; padding:6px 0; }
+  .node::before { content:""; position:absolute; left:-14px; top:14px; width:10px; height:2px; background:var(--border); }
+  .node .t { font-size:14px; font-weight:600; }
+  .node .d { font-size:12px; color:var(--sub); margin-top:2px; line-height:1.5; }
+  .pill { display:inline-block; font-size:10px; padding:1px 7px; border-radius:8px; margin-left:6px; vertical-align:1px; }
+  .pill.ok { background:#e6f6ee; color:var(--green); }
+  .pill.warn { background:#fff3e0; color:var(--yellow); }
+  .pill.code { background:#eef0f4; color:var(--sub); }
+  .pill.new { background:#f3e8ff; color:var(--purple); }
+  .wide { grid-column:1 / -1; }
+  .footer { text-align:center; color:var(--sub); font-size:12px; margin-top:26px; padding-top:16px; border-top:1px solid var(--border); }
+  @media(max-width:800px){ .grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 <span>Ahao Stock Agent</span> · 交易体系总览</h1>
+  <p>图形买点体系图形买点体系数字化体系 · 数据源妙想优先 · 规则经「图形买点体系策略」知识库核验</p>
+  <span class="updated">🔄 2026-08-10 定版 · 18/23 规则已核验</span>
+</div>
+
+<div class="grid">
+
+  <!-- 1. 核心战法体系 -->
+  <div class="card wide">
+    <h2>🧠 一、核心战法体系 <span class="tag">已代码化</span></h2>
+    <div class="desc">买点体系 + 择时工具 + 指标分层,全部已实现为 Python 工具</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;">
+      <div class="branch">
+        <div class="node"><div class="t">B1/B2/B3 六节点买点 <span class="pill ok">✅ 已核验</span><span class="pill code">battle.py</span></div><div class="d">B1超跌首买(J大负值) / B2突破确认(放量过颈线) / B3加速主升(J钝化);S1/S2/S3 对应卖点</div></div>
+        <div class="node"><div class="t">砖型图(知行) <span class="pill ok">✅</span><span class="pill code">brick.py</span></div><div class="d">红绿砖动量拐点;绿翻强红=核心买点;连续4红砖=减仓30-50%</div></div>
+        <div class="node"><div class="t">单针下20 <span class="pill ok">✅</span><span class="pill code">needle20.py</span></div><div class="d">四线指标找位置;J≤20低位低吸,禁单独使用</div></div>
+        <div class="node"><div class="t">深V·补票(601) <span class="pill ok">✅</span><span class="pill code">deep_v.py</span></div><div class="d">错过B1后的补票上车;V形翻红+MA20之上+量配合,胜率&lt;40%玩盈亏比</div></div>
+        <div class="node"><div class="t">双线战法(黄白线) <span class="pill ok">✅</span><span class="pill code">indicators.py</span></div><div class="d">白线EMA(EMA(C,10),10) / 黄线BBI(14/28/57/114);白上黄下=多头区间</div></div>
+        <div class="node"><div class="t">坑里起好货(坑论) <span class="pill ok">✅</span><span class="pill code">pattern_rules</span></div><div class="d">深坑+缩量+黄线支撑=好货;坑的深浅决定利润空间</div></div>
+      </div>
+      <div class="branch">
+        <div class="node"><div class="t">活跃市值择时 <span class="pill ok">✅</span><span class="pill code">market_value.py</span></div><div class="d">0AmV 定大盘温度;单日≥+4%入场(小波段)/≥+8%(大波段)/≤-2.3%离场;3-5日趋势定仓位</div></div>
+        <div class="node"><div class="t">换手率过滤 <span class="pill ok">✅</span><span class="pill code">turnover.py</span></div><div class="d">最后一关辅助过滤;相对换手优先,配合行情阶段</div></div>
+        <div class="node"><div class="t">红肥绿瘦 <span class="pill ok">✅</span><span class="pill code">b1_select.py</span></div><div class="d">波段量价健康度:涨放量跌缩量;14日阳量/阴量&gt;1.65</div></div>
+        <div class="node"><div class="t">四分之三阴量 <span class="pill ok">✅</span><span class="pill code">battle.py</span></div><div class="d">突破阳线后次日阴量/阳量 50-80%=假突破;<50%=良性回踩</div></div>
+        <div class="node"><div class="t">对称战法 / 关键K <span class="pill ok">✅</span><span class="pill code">key_kline.py</span></div><div class="d">关键K线定转折;对称结构预判波段</div></div>
+        <div class="node"><div class="t">异动选牛 <span class="pill ok">✅</span><span class="pill code">screen_bull.py</span></div><div class="d">异动之后找地量;无异动不做B1</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 完整交易闭环 -->
+  <div class="card wide">
+    <h2>🔁 二、完整交易闭环自动化 <span class="tag">已部署</span></h2>
+    <div class="desc">每日 5 步工作流 + 定时任务 + 多源数据路由</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 30px;">
+      <div class="branch">
+        <div class="node"><div class="t">每日5步 <span class="pill ok">✅ 已核验</span></div><div class="d">①择时(活跃市值) → ②定策略(手松紧+仓位) → ③复盘 → ④选股(B1/B2) → ⑤执行(竞价到收盘)</div></div>
+        <div class="node"><div class="t">⏰ 09:15 盘前分析(自动) <span class="pill new">NEW</span></div><div class="d">外围市场(美股/韩股/汇率/商品) + 消息面(妙想) + 集合竞价 → 盘前报告落盘</div></div>
+        <div class="node"><div class="t">⏰ 22:00 盘后复盘(自动) <span class="pill new">NEW</span></div><div class="d">问操作→记录→活跃市值补充→六项评分复盘→明日三情景→落盘</div></div>
+      </div>
+      <div class="branch">
+        <div class="node"><div class="t">数据路由(妙想优先) <span class="pill code">data_router.py</span></div><div class="d">妙想MX(指数/美股/新闻/财务/选股) → akshare/腾讯/mootdx 兜底 → iFinD 受控;活跃市值=指南针App人工补充</div></div>
+        <div class="node"><div class="t">2位专家会诊(图形买点体系+方向仓位体系) <span class="pill code">trading_assistant</span></div><div class="d">图形买点体系(图形买点)+方向仓位体系(方向仓位卖出) → 共识+分歧+裁判结论;10个战法模块归入体系内</div></div>
+        <div class="node"><div class="t">知识库引用 <span class="pill new">NEW</span></div><div class="d">ima「图形买点体系策略」188篇,规则细节/案例/最新直播口播稿实时查证</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 风控与资金管理 -->
+  <div class="card">
+    <h2>🛡️ 三、风控与资金管理 <span class="tag">纪律优先</span></h2>
+    <div class="desc">手松手紧总开关 + 三层纪律 + 仓位铁律</div>
+    <div class="branch">
+      <div class="node"><div class="t">手松/手紧总开关 <span class="pill ok">✅</span></div><div class="d">手紧:仓0-50%,只做最完美形态,B1可做B2/B3不做;手松:仓80-100%,全策略可做</div></div>
+      <div class="node"><div class="t">仓位上限 <span class="pill code">trade_discipline</span></div><div class="d">单标的≤20%;T+1 ETF 单日建仓≤50%计划仓;连续创新低禁加仓</div></div>
+      <div class="node"><div class="t">止损纪律</div><div class="d">止损人工输入,禁自动生成;盈利≠正确、亏损≠错误,评决策不评结果</div></div>
+      <div class="node"><div class="t">行为画像</div><div class="d">追高/提前入场/止损迟疑等观察记录;7天3次升级画像提醒</div></div>
+    </div>
+  </div>
+
+  <!-- 4. 工程化支撑 -->
+  <div class="card">
+    <h2>⚙️ 四、工程化底层支撑 <span class="tag">54个Python文件</span></h2>
+    <div class="desc">代码即规则,7600+行核心实现</div>
+    <div class="branch">
+      <div class="node"><div class="t">指标库</div><div class="d">黄白线/BBI/KDJ-J/砖型图/单针/换手率/活跃市值/均线系统,全本地计算</div></div>
+      <div class="node"><div class="t">数据源技能</div><div class="d">妙想MX(6子技能) + ftshare(180+接口) + akshare + mootdx + 腾讯K线兜底</div></div>
+      <div class="node"><div class="t">报告系统</div><div class="d">盘前/复盘/会诊自动落盘 data/reports/,第一行=活跃市值择时结论</div></div>
+      <div class="node"><div class="t">规则库</div><div class="d">11专家规则md + 23章pattern规则 + playbook/课程知识文档 + ima知识库188篇</div></div>
+    </div>
+  </div>
+
+  <!-- 5. 待完善 -->
+  <div class="card wide">
+    <h2>🚧 五、待完善(对比参考体系) <span class="tag">可选</span></h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+      <div class="node"><div class="t">对子底/转型图 <span class="pill warn">待补</span></div><div class="d">盘口锚点战法,非图形买点体系(知识库确认无),可自研或放弃</div></div>
+      <div class="node"><div class="t">策略回测 <span class="pill warn">待补</span></div><div class="d">B1/砖型/单针信号历史胜率回测,用活跃市值CSV+个股K线</div></div>
+      <div class="node"><div class="t">完美图四类型 <span class="pill new">知识库有</span></div><div class="d">完美一/二/三/四+B1筛选标准(-2%~+1.8%,振幅<7%),可补进 b1_rules</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Ahao Stock Agent · 图形买点体系 v1.0数字化 · 规则核验 2026-08-10 · 详情见 docs/rule-verification-2026-08-10.md
+</div>
+
+</body>
+</html>

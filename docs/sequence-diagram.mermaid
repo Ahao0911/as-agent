@@ -1,0 +1,56 @@
+sequenceDiagram
+    autonumber
+    actor U as 用户/CLI
+    participant MB as market_backtest.py
+    participant BD as backtest_data
+    participant MR as market_regime
+    participant GS as backtest_grid
+    participant PB as PortfolioBacktester
+    participant BT as backtest.py (冻结)
+    participant MT as metrics
+
+    U->>MB: python utils/market_backtest.py --oos --split 0.6
+    MB->>BD: coverage_report(universe, "2018-01-01")
+    BD-->>MB: 覆盖率 (实测 akshare 可给 2110 根)
+    MB->>BD: load_universe_klines(universe, start="2018-01-01")
+    BD->>BD: 本地DB优先 → 缺失拉 akshare 东财 → save_klines 回写
+    BD-->>MB: {code: df(2110根)}
+
+    MB->>MR: load_index_history("2018-01-01")
+    MR-->>MB: df_index
+    MB->>MR: classify_series(df_index)
+    MR-->>MB: regime Series[BULL/SIDEWAYS/BEAR]
+
+    MB->>GS: GridSearcher(default_grid())
+    GS->>GS: slice_is_oos(klines, 0.6, "time")
+    Note over GS: 全局统一切点, 防各标的漂移
+
+    rect rgb(240,248,255)
+    Note over GS,BT: ── IS 阶段: 全网格搜索 ──
+    GS->>BT: make_exit_rules() → base_rules
+    loop 每个参数组合
+        GS->>BT: compute_signals(df)  ← 只算一次并缓存!
+        GS->>GS: GridSpec.apply(df, sig, value)  ← 后置过滤(不改 backtest.py)
+        GS->>PB: run_portfolio_backtest(klines_is, rules_variant, config, regime)
+        PB->>BT: backtest_stock(sig, df, rules_variant)  per stock
+        BT-->>PB: {strategy: [trade dicts]}
+        PB->>PB: 注入code/映射entry_date(信号日+1)/打regime标签
+        PB->>PB: 事件驱动调度: 离场→建仓→算equity
+        PB-->>GS: PortfolioState
+        GS->>MT: full_report(state) → sharpe/calmar/win/mdd
+    end
+    GS->>GS: 按 calmar 降序取 best_params
+    GS->>GS: stability_score(±1邻域) ← 防空洞
+    end
+
+    rect rgb(255,245,235)
+    Note over GS,MT: ── OOS 阶段: 冻结参数只跑一次 ──
+    GS->>PB: run_portfolio_backtest(klines_oos, best_params, config, regime)
+    PB-->>GS: PortfolioState_oos
+    GS->>MT: oos_is_ratio(oos_calmar, is_calmar)
+    MT-->>GS: 0.xx  (验收 ≥ 0.6)
+    end
+
+    GS-->>MB: {best_params, IS报告, OOS报告, 稳定性, 分市况统计}
+    MB->>MT: 汇总 + 沪深300基准(benchmark)
+    MB-->>U: 控制台表格 + JSON 报告

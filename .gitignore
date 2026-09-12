@@ -1,0 +1,35 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# ===== 密钥（绝对不提交）=====
+data-sources-ifind/mcp_config.json
+data/ths_config.json
+.env
+*.env
+
+# ===== 运行数据（个人交易记录 / 模拟盘账户 / 缓存 / 报告）=====
+data/
+
+# ===== 工作记忆与自动化运行记录（含个人持仓，不提交）=====
+.workbuddy/
+
+# ===== 归档（旧脚本待清理，不提交）=====
+archive/
+
+# ===== 临时脚本 / 调试日志（勿提交）=====
+_*.log
+_*.txt
+check_db*.py
+check_db_out.txt
+
+# ===== 系统 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+_rebrand_backup/

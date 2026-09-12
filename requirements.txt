@@ -1,0 +1,7 @@
+# AS 交易体系运行依赖
+akshare>=1.14.0          # 免费财经数据(A股/宏观/板块)
+mootdx>=0.11.0           # 通达信行情(实时分时/日线)
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+stockstats>=0.4.0          # a-stock-data 依赖(第0优先级数据源)

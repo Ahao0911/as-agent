@@ -1,0 +1,168 @@
+classDiagram
+    direction TB
+
+    class BacktestData {
+        <<module>>
+        +DEFAULT_START: str = "2018-01-01"
+        +fetch_long_history(code, start, end, adjust) DataFrame
+        +load_universe_klines(codes, start, workers, refresh) dict
+        +ensure_cached(codes, start, workers) int
+        +coverage_report(codes, start) DataFrame
+    }
+
+    class MarketRegime {
+        <<module>>
+        +INDEX_CODE: str = "sh000300"
+        +classify_series(df_index, fast, slow) Series
+        +regime_at(regime, date, lag=1) str
+        +regime_segments(regime) list
+        +load_index_history(start) DataFrame
+    }
+
+    class RegimeSegment {
+        +start: str
+        +end: str
+        +regime: str
+        +bars: int
+    }
+
+    class PortfolioConfig {
+        +total_capital: float = 1000000.0
+        +group_budget: float = 250000.0
+        +buy_ratio: float = 0.50
+        +max_positions_per_group: int = 2
+        +reserve_cash: float = 20000.0
+        +max_groups_per_stock: int = 1
+        +intrabar_stop: bool = True
+        +cost_rate: float = 0.00072
+        +from_strategy_config() PortfolioConfig
+    }
+
+    class Position {
+        +code: str
+        +name: str
+        +group: str
+        +qty: int
+        +cost_price: float
+        +entry_date: str
+        +signal_date: str
+        +stop_price: float
+        +highest_price: float
+        +tranche: int
+        +market_value(price) float
+        +unrealized_pnl(price) float
+    }
+
+    class ClosedTrade {
+        +code: str
+        +name: str
+        +group: str
+        +qty: int
+        +cost_price: float
+        +exit_price: float
+        +entry_date: str
+        +exit_date: str
+        +pnl_amt: float
+        +pnl_pct: float
+        +exit_reason: str
+        +hold_bars: int
+    }
+
+    class PortfolioState {
+        +cash: float
+        +groups: dict
+        +positions: dict
+        +closed: list
+        +equity_curve: list
+        +as_of: str
+        +total_equity(prices) float
+        +group_used(group) float
+        +snapshot_equity(date, prices) void
+    }
+
+    class GroupState {
+        +name: str
+        +budget: float
+        +used: float
+        +positions: list
+        +available() float
+    }
+
+    class PortfolioBacktester {
+        -config: PortfolioConfig
+        -regime: Series
+        +__init__(config, regime)
+        +prepare_trades(klines, rules) list
+        +run(trade_events, klines) PortfolioState
+        +_allocate(state, event, date) bool
+        +_mark_to_market(state, date, prices) void
+    }
+
+    class TradeEvent {
+        +code: str
+        +name: str
+        +strategy: str
+        +signal_date: str
+        +entry_date: str
+        +entry_price: float
+        +exit_date: str
+        +exit_price: float
+        +exit_reason: str
+        +hold_bars: int
+        +raw_pnl_pct: float
+        +regime_entry: str
+    }
+
+    class GridSpec {
+        +strategy: str
+        +param: str
+        +values: list
+        +apply(signals, df, value) Series
+    }
+
+    class GridSearcher {
+        -specs: list
+        +__init__(specs)
+        +expand_grid() list
+        +slice_is_oos(klines, split_ratio, mode) tuple
+        +search_is(klines, grid, rules) DataFrame
+        +evaluate_oos(best, klines, rules) dict
+        +stability_score(results, best) float
+        +run_full(klines, rules, split_ratio) dict
+    }
+
+    class Metrics {
+        <<module>>
+        +total_return(curve) float
+        +annualized(curve, years) float
+        +max_drawdown(curve) float
+        +sharpe(curve, rf, periods) float
+        +calmar(curve) float
+        +win_rate(closed) float
+        +profit_factor(closed) float
+        +oos_is_ratio(oos_val, is_val) float
+        +full_report(state, benchmark) dict
+    }
+
+    class BacktestPy {
+        <<module · 冻结只读>>
+        +make_exit_rules() dict
+        +compute_signals(df) dict
+        +backtest_stock(signals, df, rules) dict
+        +TRADE_COST: float = 0.00072
+    }
+
+    PortfolioConfig ..> PortfolioBacktester : configures
+    PortfolioBacktester --> PortfolioState : produces
+    PortfolioState "1" *-- "n" GroupState
+    PortfolioState "1" *-- "n" Position
+    PortfolioState "1" *-- "n" ClosedTrade
+    PortfolioBacktester ..> TradeEvent : consumes
+    MarketRegime ..> TradeEvent : tags regime_entry
+    GridSearcher --> MarketRegime : optional layer
+    GridSearcher ..> Metrics : scores
+    GridSpec ..> GridSearcher : defines axes
+    BacktestData ..> PortfolioBacktester : feeds klines
+    PortfolioBacktester ..> BacktestPy : 只读复用
+    GridSearcher ..> BacktestPy : 只读复用
+    RegimeSegment -- MarketRegime
