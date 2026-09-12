@@ -186,4 +186,6 @@ as-agent/
 
 ## License
 
-[MIT](LICENSE)
+本项目采用 **MIT License** 开源 —— 可自由使用、修改、分发，需保留版权声明。
+
+Copyright (c) 2026 Ahao0911 · 详见 [LICENSE](LICENSE)
